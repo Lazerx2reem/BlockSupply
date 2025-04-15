@@ -1,8 +1,12 @@
 "use client";
+
+import Navbar from "../components/Navbar";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
+    <div>
+    <Navbar />
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white px-6 py-10">
       <section className="max-w-5xl mx-auto text-center">
         <h1 className="text-5xl font-extrabold mb-6">
@@ -48,5 +52,6 @@ export default function HomePage() {
         </div>
       </section>
     </main>
+    </div>
   );
 }
