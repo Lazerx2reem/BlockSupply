@@ -1,68 +1,93 @@
-import { useState } from 'react';
-import { ethers } from 'ethers';
-import { getContract } from '../utils/contract';
-import QrReader from 'react-qr-reader';
+import { useEffect, useState } from 'react';
+import ProductVerification from '../components/ProductVerification';
+import { BrowserProvider } from 'ethers';
 
-const ProductVerification = ({ provider }) => {
-  const [productId, setProductId] = useState('');
-  const [productDetails, setProductDetails] = useState(null);
-  const [scanning, setScanning] = useState(false);
+const Home = () => {
+  const [provider, setProvider] = useState(null);
 
-  // Function to handle QR code scan result
-  const handleScan = async (data) => {
-    if (data) {
-      setProductId(data); // Set the scanned product ID
-      handleVerifyProduct(data); // Verify the product once QR is scanned
-    }
-  };
+  useEffect(() => {
+    const initProvider = async () => {
+      const { ethereum } = window;
 
-  // Function to handle errors during the scan
-  const handleError = (err) => {
-    console.error(err);
-  };
+      if (ethereum) {
+        try {
+          await ethereum.request({ method: 'eth_requestAccounts' });
+          const ethProvider = new BrowserProvider(ethereum);
+          setProvider(ethProvider);
+        } catch (error) {
+          console.error("User denied account access:", error);
+        }
+      } else {
+        console.log('Ethereum object not found. Please install MetaMask!');
+      }
+    };
 
-  // Function to verify product from the blockchain
-  const handleVerifyProduct = async (productId) => {
-    const contract = getContract(provider);
-    const product = await contract.getProduct(productId);
-    setProductDetails(product);
-  };
+    initProvider();
+  }, []);
 
   return (
-    <div>
-      <h2>Verify Product</h2>
-      {!scanning ? (
-        <>
-          <input
-            type="text"
-            placeholder="Product ID"
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-          />
-          <button onClick={() => handleVerifyProduct(productId)}>Verify</button>
-          <button onClick={() => setScanning(true)}>Scan QR Code</button>
-        </>
-      ) : (
-        <div>
-          <button onClick={() => setScanning(false)}>Cancel Scan</button>
-          <QrReader
-            delay={300}
-            style={{ width: '100%' }}
-            onError={handleError}
-            onScan={handleScan}
-          />
-        </div>
-      )}
+    <div className="bg-purple-100 min-h-screen flex flex-col items-center justify-center px-4">
+      <h1 className="text-4xl font-bold text-purple-700 mb-8 text-center">🔍 Product Verification</h1>
 
-      {productDetails && (
-        <div>
-          <p>Name: {productDetails.name}</p>
-          <p>Description: {productDetails.description}</p>
-          <p>Barcode: {productDetails.barcode}</p>
+      {provider ? (
+        <div className="w-full max-w-xl bg-white shadow-md rounded-lg p-6">
+          <ProductVerification provider={provider} />
+        </div>
+      ) : (
+        <div className="bg-white p-6 rounded-lg shadow-md text-center">
+          <p className="text-lg text-gray-700 mb-4">Please connect to MetaMask to continue.</p>
+          <p className="text-sm text-gray-500 italic">Ensure you have the MetaMask extension installed.</p>
         </div>
       )}
     </div>
   );
 };
 
-export default ProductVerification;
+export default Home;
+
+
+/*// /app/page.js
+
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { connectMetaMask } from './components/WalletConnect';
+import { getUserStatus } from './components/tableland_storage';
+
+export default function Home() {
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    try {
+      const wallet = await connectMetaMask();
+      router.push(`/register?wallet=${wallet}`);
+    } catch (err) {
+      console.error("MetaMask connection failed", err);
+    }
+  };
+
+  const handleRegistered = async () => {
+    try {
+      const wallet = await connectMetaMask();
+      const role = await getUserStatus(wallet);
+
+      if (role === 'company') {
+        router.push('/company');
+      } else if (role === 'candidate') {
+        router.push('/candidate');
+      } else {
+        alert('You are not registered yet.');
+      }
+    } catch (err) {
+      console.error("Error checking user status:", err);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Welcome to the Product Verification</h1>
+      <button onClick={handleLogin}>Login with MetaMask</button>
+      <button onClick={handleRegistered}>I am registered</button>
+    </div>
+  );
+} */
