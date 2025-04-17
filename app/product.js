@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import ProductVerification from '../components/ProductVerification';
+import ProductVerification from '../../components/ProductVerification';
 import { BrowserProvider } from 'ethers';
 
 const Home = () => {

@@ -1,6 +1,6 @@
 // pages/register.js
 
-import ProductRegistration from '../components/ProductRegistration'; // Import ProductRegistration
+import ProductRegistration from '../../components/ProductRegistration'; // Import ProductRegistration
 
 const RegisterPage = ({ provider }) => {
   return (

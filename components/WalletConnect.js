@@ -1,34 +1,26 @@
 // components/WalletConnect.js
+"use client";
+
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-const WalletConnect = () => {
+const WalletConnect = ({ setProvider }) => {
   const [account, setAccount] = useState(null);
-  const [provider, setProvider] = useState(null);
 
-  // Check if MetaMask is installed
-  const checkMetaMask = () => {
-    if (typeof window.ethereum !== 'undefined') {
-      console.log('MetaMask is installed');
-      return true;
-    }
-    return false;
-  };
+  const checkMetaMask = () => typeof window.ethereum !== 'undefined';
 
   const connectWallet = async () => {
     if (checkMetaMask()) {
       try {
-        // Request account access
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const userAccount = accounts[0];
-        setAccount(userAccount);
+        setAccount(accounts[0]);
         const tempProvider = new ethers.BrowserProvider(window.ethereum);
         setProvider(tempProvider);
       } catch (error) {
-        console.error('Error connecting to MetaMask:', error);
+        console.error('MetaMask connection error:', error);
       }
     } else {
-      alert('MetaMask is not installed!');
+      alert('Please install MetaMask!');
     }
   };
 
@@ -40,20 +32,20 @@ const WalletConnect = () => {
     }
   }, []);
 
-  return (
-    <div>
-      {account ? (
-        <div>
-          <p>Connected Account: {account}</p>
-        </div>
-      ) : (
-        <button onClick={connectWallet}>Connect Wallet</button>
-      )}
-    </div>
+  return account ? (
+    <span className="text-green-400 text-sm truncate max-w-xs">{account}</span>
+  ) : (
+    <button
+      onClick={connectWallet}
+      className="bg-green-500 hover:bg-green-600 text-black font-semibold px-4 py-2 rounded-xl transition duration-200"
+    >
+      Connect Wallet
+    </button>
   );
 };
 
 export default WalletConnect;
+
 
 /*
 // /app/lib/walletConnect.js
