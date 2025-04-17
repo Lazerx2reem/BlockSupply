@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import ProductVerification from '../components/ProductVerification';
 import { BrowserProvider } from 'ethers';
-import '../styles/globals.css'
 
 const Home = () => {
   const [provider, setProvider] = useState(null);
