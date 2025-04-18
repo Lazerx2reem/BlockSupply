@@ -1,5 +1,5 @@
 // pages/register.js
-
+'use client'
 import ProductRegistration from '../../components/ProductRegistration'; // Import ProductRegistration
 
 const RegisterPage = ({ provider }) => {

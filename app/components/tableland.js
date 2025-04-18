@@ -1,4 +1,4 @@
-/*
+
 // /app/lib/tableland_storage.js
 import { Database } from '@tableland/sdk';
 
@@ -26,4 +26,3 @@ export async function getUserStatus(wallet) {
   console.log('User status from Tableland:', results);
   return results.length > 0 ? results[0].role : null;
 }
-  */ 

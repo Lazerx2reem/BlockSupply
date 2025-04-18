@@ -1,6 +1,7 @@
+
 import { useState } from 'react';
 import QRCodeScanner from '../components/QRScanner';
-import { getContract } from '../utils/contract';
+import { getContract } from '../../utils/contract';
 
 const ProductVerification = ({ provider }) => {
   const [productId, setProductId] = useState('');
@@ -36,3 +37,4 @@ const ProductVerification = ({ provider }) => {
 };
 
 export default ProductVerification;
+
