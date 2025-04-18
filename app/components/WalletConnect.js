@@ -3,27 +3,39 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+// ✅ Reusable function for connecting MetaMask externally
+export const connectMetaMask = async (setProvider) => {
+  try {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (accounts.length > 0) {
+        const provider = new ethers.BrowserProvider(window.ethereum); // ethers v6
+        setProvider(provider);
+        return accounts[0];
+      }
+    } else {
+      alert('Please install MetaMask!');
+    }
+  } catch (error) {
+    console.error('MetaMask connection error:', error);
+    throw error;
+  }
+};
+
+// ✅ Component to show Connect button or wallet address
 const WalletConnect = ({ setProvider }) => {
   const [account, setAccount] = useState(null);
 
-  const connectWallet = async () => {
+  const handleConnect = async () => {
     try {
-      if (typeof window !== 'undefined' && window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          const tempProvider = new ethers.BrowserProvider(window.ethereum);
-          setProvider(tempProvider);
-        }
-      } else {
-        alert('Please install MetaMask!');
-      }
-    } catch (error) {
-      console.error('MetaMask connection error:', error);
+      const acc = await connectMetaMask(setProvider);
+      if (acc) setAccount(acc);
+    } catch (err) {
+      console.error("Connection failed:", err);
     }
   };
 
-  // ✅ Put this updated useEffect here:
+  // Auto-connect if previously authorized
   useEffect(() => {
     const handleAccountsChanged = (accounts) => {
       if (accounts.length > 0) {
@@ -36,12 +48,12 @@ const WalletConnect = ({ setProvider }) => {
     if (typeof window !== 'undefined' && window.ethereum) {
       window.ethereum.on('accountsChanged', handleAccountsChanged);
 
-      // Try to auto-connect if already connected
-      window.ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
+      // Check for existing connection
+      window.ethereum.request({ method: 'eth_accounts' }).then(async (accounts) => {
         if (accounts.length > 0) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          setProvider(provider);
           setAccount(accounts[0]);
-          const tempProvider = new ethers.BrowserProvider(window.ethereum);
-          setProvider(tempProvider);
         }
       });
     }
@@ -51,13 +63,13 @@ const WalletConnect = ({ setProvider }) => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       }
     };
-  }, []); // ⬅️ Don't put setProvider here
+  }, [setProvider]);
 
   return account ? (
     <span className="text-green-400 text-sm truncate max-w-xs">{account}</span>
   ) : (
     <button
-      onClick={connectWallet}
+      onClick={handleConnect}
       className="bg-green-500 hover:bg-green-600 text-black font-semibold px-4 py-2 rounded-xl transition duration-200"
     >
       Connect Wallet

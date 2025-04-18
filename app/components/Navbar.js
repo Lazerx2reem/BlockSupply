@@ -1,9 +1,12 @@
 "use client";
 
 import Link from 'next/link';
+import { useState } from 'react'; // Import useState for setting provider
 import WalletConnect from './WalletConnect';
 
-const Navbar = ({ setProvider }) => {
+const Navbar = () => {
+  const [provider, setProvider] = useState(null); // Define state for provider
+
   return (
     <nav className="bg-gray-950 text-white px-6 py-4 shadow-md flex justify-between items-center">
       {/* Left-aligned BlockSupply logo */}
@@ -16,10 +19,10 @@ const Navbar = ({ setProvider }) => {
         <Link href="/product" className="hover:text-green-400 transition">
           Product
         </Link>
-        <Link href="/registry" className="hover:text-green-400 transition">
-          Registry
+        <Link href="/manufacturer" className="hover:text-green-400 transition">
+          Manufacturer
         </Link>
-        <WalletConnect setProvider={setProvider} />
+        <WalletConnect setProvider={setProvider} /> {/* Pass setProvider as a prop */}
       </div>
     </nav>
   );

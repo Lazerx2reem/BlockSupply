@@ -1,28 +1,66 @@
+import { Database } from "@tableland/sdk";
 
-// /app/lib/tableland_storage.js
-import { Database } from '@tableland/sdk';
+// Replace with your actual table name
+const tableName = "users_12345_80001"; // example: users_12345_80001
 
+// Initialize once
 const db = new Database();
 
-const tableName = 'user_meta_1_58'; // ✅ Update to your actual table name
+/**
+ * Get user by wallet address
+ * @param {string} wallet - User wallet address
+ * @returns {Promise<object|null>} - Returns user object or null
+ */
+export const getUserByWallet = async (wallet) => {
+  try {
+    const stmt = await db.prepare(`SELECT * FROM ${tableName} WHERE wallet = ?`);
+    const { results } = await stmt.bind(wallet).all();
 
-export async function addUser(wallet, role) {
-  const insertStmt = `INSERT INTO ${tableName} (wallet, role, status) VALUES ('${wallet}', '${role}', 'active');`;
-  const result = await db.prepare(insertStmt).run();
-  console.log('User added to Tableland:', result);
-  return result;
-}
+    return results.length > 0 ? results[0] : null;
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    return null;
+  }
+};
 
-export async function getUser(wallet) {
-  const selectStmt = `SELECT * FROM ${tableName} WHERE wallet = '${wallet}';`;
-  const { results } = await db.prepare(selectStmt).all();
-  console.log('User info from Tableland:', results);
-  return results;
-}
+/**
+ * Register a new user
+ * @param {string} wallet - User wallet address
+ * @param {'customer'|'manufacturer'} role - User role
+ * @returns {Promise<boolean>} - Success status
+ */
+export const registerUser = async (wallet, role) => {
+  try {
+    const stmt = await db.prepare(
+      `INSERT INTO ${tableName} (wallet, role, status) VALUES (?, ?, ?)`
+    );
+    await stmt.bind(wallet, role, 'active').run();
+    return true;
+  } catch (err) {
+    console.error("Error registering user:", err);
+    return false;
+  }
+};
 
-export async function getUserStatus(wallet) {
-  const selectStmt = `SELECT role FROM ${tableName} WHERE wallet = '${wallet}';`;
-  const { results } = await db.prepare(selectStmt).all();
-  console.log('User status from Tableland:', results);
-  return results.length > 0 ? results[0].role : null;
-}
+/**
+ * Update a user role or status
+ * @param {string} wallet - Wallet to update
+ * @param {object} updates - Fields to update, e.g. { role: 'manufacturer' }
+ */
+export const updateUser = async (wallet, updates = {}) => {
+  try {
+    const fields = Object.entries(updates)
+      .map(([key, _]) => `${key} = ?`)
+      .join(", ");
+    const values = Object.values(updates);
+
+    const stmt = await db.prepare(
+      `UPDATE ${tableName} SET ${fields} WHERE wallet = ?`
+    );
+    await stmt.bind(...values, wallet).run();
+    return true;
+  } catch (err) {
+    console.error("Error updating user:", err);
+    return false;
+  }
+};
