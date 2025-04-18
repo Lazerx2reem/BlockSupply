@@ -5,14 +5,17 @@ import WalletConnect from './WalletConnect';
 
 const Navbar = ({ setProvider }) => {
   return (
-    <nav className="flex items-center justify-between px-8 py-4 bg-gray-900 shadow-md">
-      <div className="text-2xl font-bold text-white">BlockSupply</div>
+    <nav className="bg-gray-950 text-white px-6 py-4 shadow-md flex justify-between items-center">
+      <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-500 bg-clip-text text-transparent">
+        BlockSupply
+      </div>
+
       <div className="flex items-center space-x-6">
-        <Link href="/product">
-          <span className="hover:text-green-400 transition duration-200">Product</span>
+        <Link href="/product" className="hover:text-green-400 transition">
+          Product
         </Link>
-        <Link href="/registry">
-          <span className="hover:text-green-400 transition duration-200">Registry</span>
+        <Link href="/registry" className="hover:text-green-400 transition">
+          Registry
         </Link>
         <WalletConnect setProvider={setProvider} />
       </div>

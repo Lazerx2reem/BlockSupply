@@ -1,55 +1,77 @@
 import { useState } from 'react';
-import QRCodeScanner from './QRScanner'; // Import QRCodeScanner
-import { registerProduct } from '../utils/contract';
+import QRCodeScanner from './QRScanner';
+import { registerProduct } from '../../utils/contract';
 
 const ProductRegistration = ({ provider }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [barcode, setBarcode] = useState('');
-  const [scannedData, setScannedData] = useState('');
-
-  const handleRegisterProduct = async () => {
-    // If scannedData exists, use it for registration
-    const productData = scannedData ? { barcode: scannedData } : { name, description, barcode };
-    
-    await registerProduct(productData.name || name, productData.description || description, productData.barcode, provider);
-  };
+  const [scannedBarcode, setScannedBarcode] = useState('');
 
   const handleScan = (decodedText) => {
-    setScannedData(decodedText); // Set the scanned QR code data to be used for registration
+    setScannedBarcode(decodedText);
+    setBarcode(decodedText);
+  };
+
+  const handleRegisterProduct = async () => {
+    if (!name || !description || !(scannedBarcode || barcode)) {
+      alert('Please fill in all required fields or scan a barcode.');
+      return;
+    }
+
+    try {
+      const productName = name.trim();
+      const productDescription = description.trim();
+      const productBarcode = scannedBarcode || barcode.trim();
+
+      await registerProduct(productName, productDescription, productBarcode, provider);
+      alert('Product registered successfully!');
+
+      // Reset fields
+      setName('');
+      setDescription('');
+      setBarcode('');
+      setScannedBarcode('');
+    } catch (error) {
+      console.error('Error registering product:', error);
+      alert('Failed to register product.');
+    }
   };
 
   return (
-    <div>
-      <h2>Register Product</h2>
-      <QRCodeScanner onScan={handleScan} /> {/* Render the QRCodeScanner */}
-      
-      {/* If no QR code is scanned, allow manual input */}
-      {!scannedData && (
-        <>
-          <input
-            type="text"
-            placeholder="Product Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Product Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </>
-      )}
+    <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg shadow">
+      <h2 className="text-xl font-bold mb-4">Register Product</h2>
 
+      <QRCodeScanner onScan={handleScan} />
+
+      <input
+        type="text"
+        placeholder="Product Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full p-2 mb-2 border rounded"
+      />
+      <input
+        type="text"
+        placeholder="Product Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="w-full p-2 mb-2 border rounded"
+      />
       <input
         type="text"
         placeholder="Product Barcode"
         value={barcode}
         onChange={(e) => setBarcode(e.target.value)}
+        className="w-full p-2 mb-4 border rounded"
       />
-      
-      <button onClick={handleRegisterProduct}>Register</button>
+
+      <button
+        onClick={handleRegisterProduct}
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
+      >
+        Register
+      </button>
     </div>
   );
 };
