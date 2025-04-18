@@ -10,12 +10,12 @@ const ProductRegistration = ({ provider }) => {
 
   const handleScan = (decodedText) => {
     setScannedBarcode(decodedText);
-    setBarcode(decodedText);
+    setBarcode(decodedText); // Autofill barcode input field
   };
 
   const handleRegisterProduct = async () => {
     if (!name || !description || !(scannedBarcode || barcode)) {
-      alert('Please fill in all required fields or scan a barcode.');
+      alert('Please fill in all fields or scan a barcode.');
       return;
     }
 
@@ -25,52 +25,67 @@ const ProductRegistration = ({ provider }) => {
       const productBarcode = scannedBarcode || barcode.trim();
 
       await registerProduct(productName, productDescription, productBarcode, provider);
-      alert('Product registered successfully!');
+      alert('✅ Product registered successfully!');
 
-      // Reset fields
+      // Reset
       setName('');
       setDescription('');
       setBarcode('');
       setScannedBarcode('');
     } catch (error) {
-      console.error('Error registering product:', error);
-      alert('Failed to register product.');
+      console.error('Registration Error:', error);
+      alert('❌ Failed to register product.');
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Register Product</h2>
+    <div className="max-w-xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
+      <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Register Product</h2>
 
-      <QRCodeScanner onScan={handleScan} />
+      <div className="mb-6">
+        <QRCodeScanner onScan={handleScan} />
+      </div>
 
-      <input
-        type="text"
-        placeholder="Product Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Product Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Product Barcode"
-        value={barcode}
-        onChange={(e) => setBarcode(e.target.value)}
-        className="w-full p-2 mb-4 border rounded"
-      />
+      <div className="space-y-4">
+        <div>
+          <label className="block text-gray-700 font-semibold mb-1">Product Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+            placeholder="Enter product name"
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 font-semibold mb-1">Product Description</label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+            placeholder="Enter product description"
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 font-semibold mb-1">Product Barcode</label>
+          <input
+            type="text"
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+            placeholder="Scan or enter barcode"
+          />
+        </div>
+      </div>
 
       <button
         onClick={handleRegisterProduct}
-        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
+        className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition duration-300 shadow-lg"
       >
-        Register
+        ✅ Register Product
       </button>
     </div>
   );

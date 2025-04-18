@@ -1,35 +1,40 @@
-// components/QRCodeScanner.js
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const QRCodeScanner = ({ onScan }) => {
-  const scannerRef = useRef(null);
-
   useEffect(() => {
-    if (!scannerRef.current) return;
-
     const scanner = new Html5QrcodeScanner('qr-reader', {
       fps: 10,
       qrbox: 250,
+      rememberLastUsedCamera: true,
+      supportedScanTypes: [Html5QrcodeScanner.SCAN_TYPE_CAMERA, Html5QrcodeScanner.SCAN_TYPE_FILE]
     });
 
     scanner.render(
-      (decodedText, decodedResult) => {
+      (decodedText) => {
         onScan(decodedText);
+        scanner.clear();
       },
-      (errorMessage) => {
-        console.warn('QR Code Scan Error:', errorMessage);
+      (error) => {
+        console.warn('QR Scan Error:', error);
       }
     );
 
     return () => {
-      scanner.clear().catch((error) => {
-        console.error('Failed to clear QR scanner', error);
-      });
+      scanner.clear().catch(() => {});
     };
   }, [onScan]);
 
-  return <div id="qr-reader" ref={scannerRef} />;
+  return (
+    <div className="text-center">
+      <div id="qr-reader" className="mx-auto" />
+
+      {/* Optional: Add a visible label for file drop */}
+      <p className="mt-4 text-gray-600 text-sm font-medium">
+        Or drop an image with a QR code above 👆
+      </p>
+    </div>
+  );
 };
 
 export default QRCodeScanner;
