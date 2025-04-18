@@ -1,11 +1,12 @@
 // pages/register.js
 'use client'
 import ProductRegistration from '../components/ProductRegistration'; // Import ProductRegistration
+import Navbar from '../components/Navbar';
 
 const RegisterPage = ({ provider }) => {
   return (
     <div>
-      <h1>Product Registration</h1>
+      <Navbar />
       <ProductRegistration provider={provider} /> {/* Pass provider to the ProductRegistration component */}
     </div>
   );
