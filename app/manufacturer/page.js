@@ -1,7 +1,5 @@
 "use client";
-
 import { useState } from 'react';
-import { ethers } from 'ethers';
 import Navbar from '../components/Navbar';
 import ProductRegistration from '../components/ProductRegistration'; // ⬅️ Adjust the path if needed
 import WalletConnect from '../components/WalletConnect';

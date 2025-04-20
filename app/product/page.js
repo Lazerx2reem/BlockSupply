@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import QRCodeScanner from '../components/QRScanner';
 import { getProductDetails } from '../../utils/contract'; // Ensure this function exists and fetches product by barcode
