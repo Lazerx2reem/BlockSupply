@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ethers } from "ethers";
 import { Database } from "@tableland/sdk";
@@ -9,8 +9,28 @@ import Navbar from "./components/Navbar";
 export default function Home() {
   const [provider, setProvider] = useState(null);
   const [account, setAccount] = useState(null);
-  const [isChecking, setIsChecking] = useState(false);
+  const [isInTableland, setIsInTableland] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const router = useRouter();
+
+  // 🔁 Auto-connect if wallet already authorized
+  useEffect(() => {
+    const autoConnect = async () => {
+      if (typeof window !== "undefined" && window.ethereum) {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          const userAccount = accounts[0];
+          const browserProvider = new ethers.BrowserProvider(window.ethereum);
+          setProvider(browserProvider);
+          setAccount(userAccount);
+          await checkUserInTableland(userAccount);
+        } else {
+          setIsChecking(false); // Done checking
+        }
+      }
+    };
+    autoConnect();
+  }, []);
 
   const connectWallet = async () => {
     try {
@@ -21,7 +41,7 @@ export default function Home() {
           const browserProvider = new ethers.BrowserProvider(window.ethereum);
           setProvider(browserProvider);
           setAccount(userAccount);
-          checkUserInTableland(userAccount);
+          await checkUserInTableland(userAccount);
         }
       } else {
         alert("Please install MetaMask!");
@@ -34,17 +54,16 @@ export default function Home() {
   const checkUserInTableland = async (wallet) => {
     setIsChecking(true);
     const db = new Database();
-    const tableName = "Table_1_60"; // Replace with your actual Tableland table
+    const tableName = "Table_1_60"; // Replace with your actual table name
 
     try {
       const stmt = await db.prepare(`SELECT role FROM ${tableName} WHERE wallet = ?`);
       const { results } = await stmt.bind(wallet).all();
 
       if (results.length > 0) {
-        const role = results[0].role;
-        router.push(`/${role}`); // Redirect to /customer or /manufacturer
+        setIsInTableland(true);
       } else {
-        router.push("/register"); // Ask user to pick a role
+        router.push("/manufacturer");
       }
     } catch (err) {
       console.error("Error querying Tableland:", err);
@@ -63,15 +82,38 @@ export default function Home() {
         <p className="text-gray-400 mb-6 text-lg max-w-md">
           Secure and transparent supply chain tracking using the power of blockchain.
         </p>
-        <button
-          onClick={connectWallet}
-          className={`px-8 py-4 text-lg font-semibold rounded-xl transition duration-300 
-            ${isChecking ? "bg-gray-600 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}
-          `}
-          disabled={isChecking}
-        >
-          {isChecking ? "Checking..." : "Connect Wallet"}
-        </button>
+
+        {isChecking && (
+          <button className="px-8 py-4 bg-gray-600 text-lg font-semibold rounded-xl cursor-not-allowed">
+            Checking...
+          </button>
+        )}
+
+        {!isChecking && !account && (
+          <button
+            onClick={connectWallet}
+            className="px-8 py-4 bg-green-600 hover:bg-green-700 text-lg font-semibold rounded-xl"
+          >
+            Connect Wallet
+          </button>
+        )}
+
+        {!isChecking && account && isInTableland && (
+          <div className="flex flex-col gap-4 mt-6">
+            <button
+              onClick={() => router.push("/product")}
+              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl text-lg font-semibold"
+            >
+              Product
+            </button>
+            <button
+              onClick={() => router.push("/manufacturer")}
+              className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl text-lg font-semibold"
+            >
+              Manufacturer
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

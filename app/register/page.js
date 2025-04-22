@@ -30,9 +30,9 @@ export default function RegisterPage() {
         return;
       }
 
-      const signer = await provider.getSigner();
+      const signer = provider.getSigner(wallet);
       const db = new Database({ signer });
-      const tableName = "Table_1_60"; // ✅ Replace with your actual table name
+      const tableName = "Table_1_60";
 
       const readRes = await db.prepare(`SELECT * FROM ${tableName} WHERE wallet = ?`)
         .bind(wallet)
