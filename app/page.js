@@ -1,75 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ethers } from "ethers";
-import { Database } from "@tableland/sdk";
+import { useAddress, useMetamask } from "@thirdweb-dev/react";
 import Navbar from "./components/Navbar";
 
 export default function Home() {
-  const [provider, setProvider] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [isInTableland, setIsInTableland] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
   const router = useRouter();
+  const connectWithMetamask = useMetamask();
+  const address = useAddress(); // Connected wallet address
+  const [isChecking, setIsChecking] = useState(false);
 
-  // 🔁 Auto-connect if wallet already authorized
   useEffect(() => {
-    const autoConnect = async () => {
-      if (typeof window !== "undefined" && window.ethereum) {
-        const accounts = await window.ethereum.request({ method: "eth_accounts" });
-        if (accounts.length > 0) {
-          const userAccount = accounts[0];
-          const browserProvider = new ethers.BrowserProvider(window.ethereum);
-          setProvider(browserProvider);
-          setAccount(userAccount);
-          await checkUserInTableland(userAccount);
-        } else {
-          setIsChecking(false); // Done checking
-        }
-      }
-    };
-    autoConnect();
-  }, []);
-
-  const connectWallet = async () => {
-    try {
-      if (typeof window !== "undefined" && window.ethereum) {
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        if (accounts.length > 0) {
-          const userAccount = accounts[0];
-          const browserProvider = new ethers.BrowserProvider(window.ethereum);
-          setProvider(browserProvider);
-          setAccount(userAccount);
-          await checkUserInTableland(userAccount);
-        }
-      } else {
-        alert("Please install MetaMask!");
-      }
-    } catch (err) {
-      console.error("Error connecting wallet:", err);
+    if (address) {
+      handleUserRouting(address);
     }
-  };
+  }, [address]);
 
-  const checkUserInTableland = async (wallet) => {
+  const handleUserRouting = async (wallet) => {
     setIsChecking(true);
-    const db = new Database();
-    const tableName = "Table_1_60"; // Replace with your actual table name
 
-    try {
-      const stmt = await db.prepare(`SELECT role FROM ${tableName} WHERE wallet = ?`);
-      const { results } = await stmt.bind(wallet).all();
+    // Mock example: get role from localStorage or assign default
+    let role = localStorage.getItem("role");
 
-      if (results.length > 0) {
-        setIsInTableland(true);
-      } else {
-        router.push("/manufacturer");
-      }
-    } catch (err) {
-      console.error("Error querying Tableland:", err);
-    } finally {
-      setIsChecking(false);
+    if (!role) {
+      // Fallback: ask the user to pick a role if not stored
+      alert("No role found. Redirecting to role selection...");
+      router.push("/register");
+    } else {
+      // Save wallet
+      localStorage.setItem("wallet", wallet);
+
+      setTimeout(() => {
+        if (role === "customer") {
+          router.push("/product");
+        } else if (role === "manufacturer") {
+          router.push("/manufacturer");
+        } else {
+          alert("Unknown role found.");
+        }
+      }, 1000);
     }
+
+    setIsChecking(false);
   };
 
   return (
@@ -83,36 +56,17 @@ export default function Home() {
           Secure and transparent supply chain tracking using the power of blockchain.
         </p>
 
-        {isChecking && (
+        {isChecking ? (
           <button className="px-8 py-4 bg-gray-600 text-lg font-semibold rounded-xl cursor-not-allowed">
             Checking...
           </button>
-        )}
-
-        {!isChecking && !account && (
+        ) : (
           <button
-            onClick={connectWallet}
+            onClick={connectWithMetamask}
             className="px-8 py-4 bg-green-600 hover:bg-green-700 text-lg font-semibold rounded-xl"
           >
             Connect Wallet
           </button>
-        )}
-
-        {!isChecking && account && isInTableland && (
-          <div className="flex flex-col gap-4 mt-6">
-            <button
-              onClick={() => router.push("/product")}
-              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl text-lg font-semibold"
-            >
-              Product
-            </button>
-            <button
-              onClick={() => router.push("/manufacturer")}
-              className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl text-lg font-semibold"
-            >
-              Manufacturer
-            </button>
-          </div>
         )}
       </main>
     </div>

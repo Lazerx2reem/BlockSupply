@@ -2,55 +2,45 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { connectMetaMask } from "../components/WalletConnect";
-import { Database } from "@tableland/sdk";
-import { ethers } from "ethers";
+import { useContract, useAddress, useMetamask } from "@thirdweb-dev/react";
 
 export default function RegisterPage() {
-  const [wallet, setWallet] = useState(null);
-  const [provider, setProvider] = useState(null);
   const router = useRouter();
+  const connectWithMetamask = useMetamask();
+  const address = useAddress();
+  const { contract } = useContract("YOUR_CONTRACT_ADDRESS"); // Replace this with your actual contract address
+
+  const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
-    const autoConnect = async () => {
-      try {
-        const acc = await connectMetaMask(setProvider);
-        setWallet(acc);
-      } catch (err) {
-        console.error("MetaMask auto-connect failed:", err);
-      }
-    };
-    autoConnect();
-  }, []);
+    console.log("Wallet address:", address);
+  }, [address]);
 
   const handleRegister = async (role) => {
+    if (!address || !contract) {
+      alert("Connect your wallet first.");
+      return;
+    }
+
     try {
-      if (!wallet || !provider) {
-        alert("Connect your wallet first.");
+      setIsRegistering(true);
+
+      // Check if the user is already registered
+      const existing = await contract.call("getRole", [address]);
+      if (existing && existing !== "") {
+        alert(`Wallet already registered as ${existing}`);
         return;
       }
 
-      const signer = provider.getSigner(wallet);
-      const db = new Database({ signer });
-      const tableName = "Table_1_60";
-
-      const readRes = await db.prepare(`SELECT * FROM ${tableName} WHERE wallet = ?`)
-        .bind(wallet)
-        .all();
-
-      if (readRes.results.length > 0) {
-        alert("Wallet already registered!");
-        return;
-      }
-
-      await db.prepare(
-        `INSERT INTO ${tableName} (wallet, role, status) VALUES (?, ?, ?)`
-      ).bind(wallet, role, "active").run();
+      // Register using msg.sender, not passing the address explicitly
+      await contract.call("register", [role]);
 
       router.push(`/${role}`);
     } catch (err) {
       console.error("Registration failed:", err);
-      alert("Registration failed! See console for more info.");
+      alert("Registration failed! Check console for details.");
+    } finally {
+      setIsRegistering(false);
     }
   };
 
@@ -60,27 +50,40 @@ export default function RegisterPage() {
         Choose Your Role
       </h1>
 
-      <p className="mb-8 text-lg text-gray-300 text-center">
-        Connected wallet:{" "}
-        <span className="text-green-400 font-medium">
-          {wallet ? wallet : "Not connected"}
-        </span>
-      </p>
+      {address ? (
+        <p className="mb-8 text-lg text-gray-300 text-center">
+          Connected wallet:{" "}
+          <span className="text-green-400 font-medium">
+            {address.slice(0, 6)}...{address.slice(-4)}
+          </span>
+        </p>
+      ) : (
+        <button
+          onClick={connectWithMetamask}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-lg mb-6"
+        >
+          Connect Wallet
+        </button>
+      )}
 
-      <div className="flex flex-col sm:flex-row gap-6">
-        <button
-          onClick={() => handleRegister("customer")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg transition"
-        >
-          I'm a Customer
-        </button>
-        <button
-          onClick={() => handleRegister("manufacturer")}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg transition"
-        >
-          I'm a Manufacturer
-        </button>
-      </div>
+      {address && contract && (
+        <div className="flex flex-col sm:flex-row gap-6">
+          <button
+            onClick={() => handleRegister("customer")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg transition"
+            disabled={isRegistering}
+          >
+            I'm a Customer
+          </button>
+          <button
+            onClick={() => handleRegister("manufacturer")}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg transition"
+            disabled={isRegistering}
+          >
+            I'm a Manufacturer
+          </button>
+        </div>
+      )}
     </main>
   );
 }

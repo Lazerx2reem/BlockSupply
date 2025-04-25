@@ -11,7 +11,9 @@
   "dependencies": {
     "@tableland/sdk": "^7.2.1",
     "@tailwindcss/vite": "^4.1.4",
-    "ethers": "^6.13.5",
+    "@thirdweb-dev/react": "^4.9.4",
+    "@thirdweb-dev/sdk": "^4.0.99",
+    "ethers": "^5.8.0",
     "html5-qrcode": "^2.3.8",
     "next": "15.3.0",
     "react": "^19.0.0",

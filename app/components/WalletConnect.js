@@ -9,7 +9,7 @@ export const connectMetaMask = async (setProvider) => {
     if (typeof window !== 'undefined' && window.ethereum) {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       if (accounts.length > 0) {
-        const provider = new ethers.BrowserProvider(window.ethereum); // ethers v6
+        const provider = new ethers.providers.Web3Provider(window.ethereum); // ethers v5
         setProvider(provider);
         return accounts[0];
       }
@@ -51,7 +51,8 @@ const WalletConnect = ({ setProvider }) => {
       // Check for existing connection
       window.ethereum.request({ method: 'eth_accounts' }).then(async (accounts) => {
         if (accounts.length > 0) {
-          const provider = new ethers.BrowserProvider(window.ethereum);
+          const provider = new ethers.providers.Web3Provider(window.ethereum); // ethers v5
+
           setProvider(provider);
           setAccount(accounts[0]);
         }

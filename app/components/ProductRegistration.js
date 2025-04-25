@@ -7,6 +7,8 @@ const ProductRegistration = ({ provider }) => {
   const [description, setDescription] = useState('');
   const [barcode, setBarcode] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
+  const [manufacturingDate, setManufacturingDate] = useState('');
+  const [expirationDate, setExpirationDate] = useState('');
 
   const handleScan = (decodedText) => {
     setScannedBarcode(decodedText);
@@ -14,8 +16,8 @@ const ProductRegistration = ({ provider }) => {
   };
 
   const handleRegisterProduct = async () => {
-    if (!name || !description || !(scannedBarcode || barcode)) {
-      alert('Please fill in all fields or scan a barcode.');
+    if (!name || !description || !(scannedBarcode || barcode) || !manufacturingDate) {
+      alert('Please fill in all required fields (Name, Description, Barcode, Manufacturing Date).');
       return;
     }
 
@@ -23,8 +25,10 @@ const ProductRegistration = ({ provider }) => {
       const productName = name.trim();
       const productDescription = description.trim();
       const productBarcode = scannedBarcode || barcode.trim();
+      const mfgDate = manufacturingDate;
+      const expDate = expirationDate || null; // Can be null if not provided
 
-      await registerProduct(productName, productDescription, productBarcode, provider);
+      await registerProduct(productName, productDescription, productBarcode, mfgDate, expDate, provider);
       alert('✅ Product registered successfully!');
 
       // Reset
@@ -32,6 +36,8 @@ const ProductRegistration = ({ provider }) => {
       setDescription('');
       setBarcode('');
       setScannedBarcode('');
+      setManufacturingDate('');
+      setExpirationDate('');
     } catch (error) {
       console.error('Registration Error:', error);
       alert('❌ Failed to register product.');
@@ -77,6 +83,28 @@ const ProductRegistration = ({ provider }) => {
             onChange={(e) => setBarcode(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
             placeholder="Scan or enter barcode"
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 font-semibold mb-1">Manufacturing Date</label>
+          <input
+            type="date"
+            value={manufacturingDate}
+            onChange={(e) => setManufacturingDate(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 font-semibold mb-1">
+            Expiration Date <span className="text-sm text-gray-500">(optional)</span>
+          </label>
+          <input
+            type="date"
+            value={expirationDate}
+            onChange={(e) => setExpirationDate(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
           />
         </div>
       </div>
