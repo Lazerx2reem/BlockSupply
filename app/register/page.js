@@ -1,89 +1,72 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useContract, useAddress, useMetamask } from "@thirdweb-dev/react";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ethers } from 'ethers';
+import abi from '../abi/UserDB.json';
+
+const CONTRACT_ADDRESS = '0x0cd180784d3b6e2369532246a45748bb1a493119';
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const connectWithMetamask = useMetamask();
-  const address = useAddress();
-  const { contract } = useContract("YOUR_CONTRACT_ADDRESS"); // Replace this with your actual contract address
-
   const [isRegistering, setIsRegistering] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    console.log("Wallet address:", address);
-  }, [address]);
+  async function register(role) {
+    if (!window.ethereum) return alert('MetaMask not found');
 
-  const handleRegister = async (role) => {
-    if (!address || !contract) {
-      alert("Connect your wallet first.");
-      return;
-    }
+    setIsRegistering(true);
 
     try {
-      setIsRegistering(true);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
-      // Check if the user is already registered
-      const existing = await contract.call("getRole", [address]);
-      if (existing && existing !== "") {
-        alert(`Wallet already registered as ${existing}`);
-        return;
+      const tx = await contract.registerUser(role);
+      await tx.wait();
+
+      // After successful registration, route them correctly
+      if (role === 0) {
+        router.push('/customer');
+      } else if (role === 1) {
+        router.push('/manufacturer');
       }
-
-      // Register using msg.sender, not passing the address explicitly
-      await contract.call("register", [role]);
-
-      router.push(`/${role}`);
     } catch (err) {
-      console.error("Registration failed:", err);
-      alert("Registration failed! Check console for details.");
+      console.error('Registration error:', err);
+      if (err?.error?.message?.includes('User already registered')) {
+        alert('You are already registered!');
+        router.push('/');
+      } else {
+        alert('Transaction failed. Please try again.');
+      }
     } finally {
       setIsRegistering(false);
     }
-  };
+  }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-black text-white px-4">
-      <h1 className="text-4xl font-extrabold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-        Choose Your Role
-      </h1>
-
-      {address ? (
-        <p className="mb-8 text-lg text-gray-300 text-center">
-          Connected wallet:{" "}
-          <span className="text-green-400 font-medium">
-            {address.slice(0, 6)}...{address.slice(-4)}
-          </span>
-        </p>
-      ) : (
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 space-y-10">
+      <h1 className="text-4xl font-bold text-gray-800">Register Your Role</h1>
+      <p className="text-lg text-gray-600">Choose how you want to use the platform.</p>
+      <div className="flex gap-10">
         <button
-          onClick={connectWithMetamask}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-lg mb-6"
+          onClick={() => register(0)}
+          disabled={isRegistering}
+          className={`px-6 py-3 rounded-lg shadow transition ${
+            isRegistering ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'
+          }`}
         >
-          Connect Wallet
+          {isRegistering ? 'Registering...' : 'Register as Customer'}
         </button>
-      )}
-
-      {address && contract && (
-        <div className="flex flex-col sm:flex-row gap-6">
-          <button
-            onClick={() => handleRegister("customer")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg transition"
-            disabled={isRegistering}
-          >
-            I'm a Customer
-          </button>
-          <button
-            onClick={() => handleRegister("manufacturer")}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg transition"
-            disabled={isRegistering}
-          >
-            I'm a Manufacturer
-          </button>
-        </div>
-      )}
-    </main>
+        <button
+          onClick={() => register(1)}
+          disabled={isRegistering}
+          className={`px-6 py-3 rounded-lg shadow transition ${
+            isRegistering ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
+          }`}
+        >
+          {isRegistering ? 'Registering...' : 'Register as Manufacturer'}
+        </button>
+      </div>
+    </div>
   );
 }

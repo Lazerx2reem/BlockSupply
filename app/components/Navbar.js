@@ -1,31 +1,78 @@
-"use client";
+'use client';
 
 import Link from 'next/link';
-import { useState } from 'react'; // Import useState for setting provider
-import WalletConnect from './WalletConnect';
+import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { ethers } from 'ethers';
 
-const Navbar = () => {
-  const [provider, setProvider] = useState(null); // Define state for provider
+export default function Navbar() {
+  const pathname = usePathname();
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    async function detectRole() {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          const userAddress = await signer.getAddress();
+
+          // Check if address exists in candidates
+          const candidateDoc = await getDoc(doc(db, 'candidates', userAddress));
+          if (candidateDoc.exists()) {
+            setRole('candidate');
+            return;
+          }
+
+          // Check if address exists in companies
+          const companyDoc = await getDoc(doc(db, 'companies', userAddress));
+          if (companyDoc.exists()) {
+            setRole('company');
+            return;
+          }
+
+          setRole(null); // no role assigned
+        } catch (error) {
+          console.error('Failed to detect user role:', error);
+        }
+      }
+    }
+
+    detectRole();
+  }, []);
+
+  const navItems = {
+    candidate: [
+      { label: 'My Profile', href: '/candidate/profile' },
+      { label: 'Browse Candidates', href: '/candidate' },
+    ],
+    company: [
+      { label: 'My Company Profile', href: '/company/profile' },
+      { label: 'Browse Companies', href: '/company' },
+      { label: 'candidates', href: '/company/dashboard'}
+    ],
+  };
 
   return (
-    <nav className="bg-gray-950 text-white px-6 py-4 shadow-md flex justify-between items-center">
-      {/* Left-aligned BlockSupply logo */}
-      <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-500 bg-clip-text text-transparent">
-        BlockSupply
-      </Link>
-
-      {/* Right-aligned links and wallet connection */}
-      <div className="flex items-center space-x-6">
-        <Link href="/product" className="hover:text-green-400 transition">
-          Product
-        </Link>
-        <Link href="/manufacturer" className="hover:text-green-400 transition">
-          Manufacturer
-        </Link>
-        <WalletConnect setProvider={setProvider} /> {/* Pass setProvider as a prop */}
+    <nav className="bg-white shadow p-4 flex justify-between items-center">
+      <div>
+        <h1 className="text-xl font-bold text-black">Website name</h1>
+      </div>
+      <div className="space-x-4">
+        {role && navItems[role].map(({ label, href }) => (
+          <Link key={href} href={href}>
+            <span
+              className={`hover:underline ${
+                'text-black'
+              }`}
+            >
+              {label}
+            </span>
+          </Link>
+        ))}
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
