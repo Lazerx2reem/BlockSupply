@@ -12,46 +12,30 @@ export default function Home() {
   const [isConnecting, setIsConnecting] = useState(false);
 
   async function handleConnect() {
-    if (!window.ethereum) {
+    if (typeof window.ethereum === 'undefined') {
       alert('MetaMask is not installed!');
       return;
     }
 
-    setIsConnecting(true);
-
     try {
+      // Request wallet connection
       await window.ethereum.request({ method: 'eth_requestAccounts' });
 
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const address = await signer.getAddress();
+      const contract = new ethers.Contract(USERDB_CONTRACT_ADDRESS, abi, signer);
 
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+      const user = await contract.getUser(address);
 
-      const isRegistered = await contract.isUserRegistered(address);
-      console.log("Is user registered?", isRegistered);
-
-      if (!isRegistered) {
+      if (user.wallet.toLowerCase() === ethers.constants.AddressZero.toLowerCase()) {
         router.push('/register');
       } else {
-        const user = await contract.getUser(address);
-        console.log("Fetched registered user:", user);
-
-        if (user.role === 0) {
-          router.push('/customer');
-        } else if (user.role === 1) {
-          router.push('/manufacturer');
-        } else {
-          // Fallback just in case
-          router.push('/register');
-        }
+        router.push(user.role === 0 ? '/candidate' : '/company');
       }
-
     } catch (err) {
-      console.error('Error connecting wallet or fetching user:', err);
-      alert('Failed to connect wallet. Please try again.');
-    } finally {
-      setIsConnecting(false);
+      console.error('Error connecting to blockchain:', err);
+      alert('Connection failed. Please try again.');
     }
   }
 
