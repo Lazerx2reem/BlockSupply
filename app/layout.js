@@ -2,7 +2,7 @@ import './globals.css';
 import ClientLayout from './ClientLayout';
 
 export const metadata = {
-  title: 'HireNet – Web3 Hiring Platform',
+  title: 'BlockSupply - Smart SupplyChain Tracker',
   description: 'Connect wallet and access personalized dashboard',
 };
 

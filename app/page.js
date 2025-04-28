@@ -62,7 +62,7 @@ export default function Home() {
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-indigo-800 to-transparent opacity-20 animate-pulse pointer-events-none"></div>
 
       <h1 className="text-6xl sm:text-7xl font-extrabold mb-6 text-center tracking-tight drop-shadow-lg z-10">
-        Hire<span className="text-purple-400">Net</span>
+        Block<span className="text-purple-400">Supply</span>
       </h1>
 
       <p className="text-lg sm:text-xl mb-10 max-w-2xl text-center text-gray-300 leading-relaxed z-10">
