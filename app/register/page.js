@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
 import abi from '../abi/UserDB.json';
 
-const CONTRACT_ADDRESS = '0x0cd180784d3b6e2369532246a45748bb1a493119';
+const REGISTER_CONTRACT = '0x0cd180784d3b6e2369532246a45748bb1a493119';
 
 export default function RegisterPage() {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -19,7 +19,7 @@ export default function RegisterPage() {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+      const contract = new ethers.Contract(REGISTER_CONTRACT, abi, signer);
 
       const tx = await contract.registerUser(role);
       await tx.wait();
@@ -49,24 +49,24 @@ export default function RegisterPage() {
       <p className="text-lg text-gray-600">Choose how you want to use the platform.</p>
       <div className="flex gap-10">
         <button
-          onClick={() => register(0)}
+          onClick={() => handleRegister(0)}
           disabled={isRegistering}
           className={`px-6 py-3 rounded-lg shadow transition ${
             isRegistering ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'
           }`}
         >
-          {isRegistering ? 'Registering...' : 'Register as Customer'}
+          {isRegistering ? '🔄 Registering...' : 'Register as Customer'}
         </button>
         <button
-          onClick={() => register(1)}
+          onClick={() => handleRegister(1)}
           disabled={isRegistering}
           className={`px-6 py-3 rounded-lg shadow transition ${
             isRegistering ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
           }`}
         >
-          {isRegistering ? 'Registering...' : 'Register as Manufacturer'}
+          {isRegistering ? '🔄 Registering...' : 'Register as Manufacturer'}
         </button>
       </div>
     </div>
   );
-}
+}  

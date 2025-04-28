@@ -8,7 +8,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import QRCodeScanner from '../../components/QRScanner';
 import abi from '../../abi/CompanyProfileDB.json';
 
-const CONTRACT_ADDRESS = '0xb82cc1e37f694efca0654580e42375f530f7d413';
+const MANUFACTURER_CONTRACT = '0xb82cc1e37f694efca0654580e42375f530f7d413';
 
 export default function ProductRegistration() {
   const [form, setForm] = useState({
@@ -84,7 +84,7 @@ export default function ProductRegistration() {
       const firestoreUrl = `https://console.firebase.google.com/u/0/project/blocksupply-259b1/firestore/data/~2Fproducts~2F${docRef.id}`;
 
       // Step 2: Upload Firestore URL to Smart Contract
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+      const contract = new ethers.Contract(MANUFACTURER_CONTRACT, abi, signer);
       const tx = await contract.setProfileURL(firestoreUrl);
       await tx.wait();
 

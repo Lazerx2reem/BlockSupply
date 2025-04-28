@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
 import abi from './abi/UserDB.json';
 
-const CONTRACT_ADDRESS = '0x0cd180784d3b6e2369532246a45748bb1a493119';
+const USERDB_CONTRACT_ADDRESS = '0x0cd180784d3b6e2369532246a45748bb1a493119';
 
 export default function Home() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function Home() {
       if (user.wallet.toLowerCase() === ethers.constants.AddressZero.toLowerCase()) {
         router.push('/register');
       } else {
-        router.push(user.role === 0 ? '/candidate' : '/company');
+        router.push(user.role === 0 ? '/customer' : '/manufacturer');
       }
     } catch (err) {
       console.error('Error connecting to blockchain:', err);
