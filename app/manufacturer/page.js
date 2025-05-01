@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/navigation';
+import Navbar from "../components/Manufacturer"
 
 export default function MyProducts() {
   const [products, setProducts] = useState([]);
@@ -44,6 +45,7 @@ export default function MyProducts() {
   }, []);
 
   return (
+    <div><Navbar/>
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-purple-950 to-black py-10 px-6">
       <div className="flex flex-col sm:flex-row items-center justify-between max-w-6xl mx-auto mb-10">
         <h2 className="text-4xl font-extrabold text-white text-center sm:text-left mb-6 sm:mb-0">
@@ -80,6 +82,7 @@ export default function MyProducts() {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 }

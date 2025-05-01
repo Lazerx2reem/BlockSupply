@@ -7,6 +7,7 @@ import { db } from '../../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import QRCodeScanner from '../../components/QRScanner';
 import abi from '../../abi/CompanyProfileDB.json';
+import Navbar from "../../components/Manufacturer"
 
 const MANUFACTURER_CONTRACT = '0xb82cc1e37f694efca0654580e42375f530f7d413';
 
@@ -105,6 +106,7 @@ export default function ProductRegistration() {
   };
 
   return (
+    <div><Navbar/>
     <div className="max-w-xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
       <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Register Product</h2>
 
@@ -146,6 +148,7 @@ export default function ProductRegistration() {
           Connected as: {account}
         </p>
       )}
+    </div>
     </div>
   );
 }
