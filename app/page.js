@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
 import abi from './abi/UserDB.json';
 
-const USERDB_CONTRACT_ADDRESS = '0x0cd180784d3b6e2369532246a45748bb1a493119';
+const USERDB_CONTRACT_ADDRESS = '0x04171daf5f95b3e07fd37b72e759bbd22e5636c9';
 
 export default function Home() {
   const router = useRouter();

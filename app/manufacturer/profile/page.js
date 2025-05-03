@@ -9,7 +9,7 @@ import QRCodeScanner from '../../components/QRScanner';
 import abi from '../../abi/CompanyProfileDB.json';
 import Navbar from "../../components/Manufacturer"
 
-const MANUFACTURER_CONTRACT = '0xb82cc1e37f694efca0654580e42375f530f7d413';
+const MANUFACTURER_CONTRACT = '0x6cc1dbc259fac45f865b700166adbbe25112e4f5';
 
 export default function ProductRegistration() {
   const [form, setForm] = useState({
