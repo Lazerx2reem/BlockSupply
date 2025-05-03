@@ -58,7 +58,7 @@ export default function Home() {
       </h1>
 
       <p className="text-lg sm:text-xl mb-10 max-w-2xl text-center text-[#d1c4e9] leading-relaxed z-10">
-        Discover extraordinary talent. Empower visionary companies. <br /> Built on trust. Powered by decentralization.
+      Verify authenticity. Track origins. Empower trust - <br />  one block at a time.
       </p>
 
       <button
