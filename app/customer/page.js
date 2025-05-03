@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Navbar from "../components/Customer"
 
 const QRScanner = dynamic(() => import('../components/QRScanner'), { ssr: false });
 
@@ -44,6 +45,7 @@ export default function CustomerPage() {
   };
 
   return (
+    <div><Navbar />
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-purple-950 to-black py-10 px-6">
       <div className="max-w-3xl mx-auto flex flex-col gap-6 items-center">
         <h1 className="text-4xl font-extrabold text-white mb-6 text-center">Search Product</h1>
@@ -98,6 +100,7 @@ export default function CustomerPage() {
           <p className="text-center text-red-400 mt-6">No product found with this barcode.</p>
         )}
       </div>
+    </div>
     </div>
   );
 }
