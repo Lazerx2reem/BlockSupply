@@ -72,7 +72,6 @@ export default function Home() {
       >
         {isConnecting ? '🔄 Connecting...' : '🚀 Connect Wallet'}
       </button>
-
       {/* Subtle Footer Glow */}
       <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#1c052d] to-transparent pointer-events-none"></div>
     </div>
